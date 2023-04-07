@@ -1,0 +1,10 @@
+{% autoescape off %}
+
+Hi {{ user.frist_name }},
+
+Please click on the link bellow to activate your account.
+http://{{domain}}{% url 'activate' uidb64=uid token=token %}
+
+If you think it is not for you, please ignore this email.
+
+{% endautoescape %}
