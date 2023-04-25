@@ -1,14 +1,17 @@
 from carts.models import CartItem
 from django.shortcuts import redirect, render
 from .forms import OrderForm
-from .models import Order, Payment
+from .models import Order, Payment, OrderProduct
 import datetime
 import json
+from store.models import Product
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 
 # Create your views here.
 def payments(request):
     body = json.loads(request.body)
-    order = Order.objects.get(user=request.user,is_ordered=False,order_number=body['orderID'])
+    order = Order.objects.get(user=request.user, is_ordered=False, order_number=body['orderID'])
     # store transaction details inside payment model
     payment = Payment(
         user = request.user,
@@ -21,6 +24,46 @@ def payments(request):
     order.payment = payment
     order.is_ordered = True
     order.save()
+
+    # Move the cart items to Order Product table
+    cart_items = CartItem.objects.filter(user=request.user)
+    
+    for item in cart_items:
+        orderproduct = OrderProduct()
+        orderproduct.order_id = order.id
+        orderproduct.payment = payment
+        orderproduct.user_id = request.user.id
+        orderproduct.product_id = item.product_id
+        orderproduct.quantity = item.quantity
+        orderproduct.product_price = item.product.price
+        orderproduct.ordered = True
+        orderproduct.save()
+
+        cart_item = CartItem.objects.get(id = item.id)
+        product_variation = cart_item.variations.all()
+        orderproduct = OrderProduct.objects.get(id = orderproduct.id)
+        orderproduct.variations.set(product_variation)
+        orderproduct.save()
+
+    # Reduce quantity of sold product
+        product = Product.objects.get(id=item.product_id)
+        product.stock -= item.quantity
+        product.save()
+
+    # Clear the cart
+    CartItem.objects.filter(user=request.user).delete()
+
+    # Send order confirmation email
+    mail_subject = 'Tank You for Your Order!'
+    message = render_to_string('orders/order_recieved_email.html', {
+        'username' : request.user.first_name,
+        'order' : order,
+    })
+    to_email = request.user.email
+    send_email = EmailMessage(mail_subject, message, to=[to_email])
+    send_email.send()
+
+    # Send order number and payment Id back to senData method via Json response
 
     return render(request, 'orders/payments.html')
 
