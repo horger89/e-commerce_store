@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-#ALLOWED_HOSTS = ['mycommerce-env.eba-wevtb7wr.us-west-2.elasticbeanstalk.com']
+
 ALLOWED_HOSTS = ['mycommerce-env.eba-wevtb7wr.us-west-2.elasticbeanstalk.com']
 
 
