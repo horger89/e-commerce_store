@@ -25,7 +25,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['my-commerce-env.eba-phpfxfru.us-west-2.elasticbeanstalk.com']
 
 
 # Application definition
