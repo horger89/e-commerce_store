@@ -14,6 +14,10 @@ from pathlib import Path
 
 from decouple import config
 
+import dj_database_url                      # heroku
+
+from boto.s3.connection import S3Connection # for secret variables on heroku
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
@@ -21,9 +25,10 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
-
+#SECRET_KEY = config('SECRET_KEY')                       # for local dev
+#DEBUG = config('DEBUG', default=False, cast=bool)       # for local dev
+SECRET_KEY = S3Connection('SECRET_KEY')                                            # heroku
+DEBUG = S3Connection('DEBUG')                                                # heroku
 
 ALLOWED_HOSTS = []
 
@@ -42,6 +47,7 @@ INSTALLED_APPS = [
     'store',
     'carts',
     'orders',
+    'whitenoise.runserver_nostatic',                   # heroku
 ]
 
 MIDDLEWARE = [
@@ -52,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',                  # heroku
 ]
 
 ROOT_URLCONF = 'my_commerce.urls'
@@ -151,9 +158,16 @@ MESSAGE_TAGS = {
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+#EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_USER = S3Connection('EMAIL_HOST_USER')         # heroku
+#EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_PASSWORD = S3Connection('MAIL_HOST_PASSWORD')  # heroku
 EMAIL_USE_TLS = True
 
 
 DEFAULT_AUTO_FIELD='django.db.models.BigAutoField'
+
+
+
+
+
