@@ -30,7 +30,8 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 SECRET_KEY = S3Connection('SECRET_KEY')                                            # heroku
 DEBUG = S3Connection('DEBUG')                                                # heroku
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = [] 
+ALLOWED_HOSTS = ["*"]                                                         # heroku
 
 
 # Application definition
